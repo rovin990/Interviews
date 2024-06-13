@@ -5,3 +5,148 @@ Ans :
       2. In contrast to Reader/Writer classes, which accept character arrays as parameters, input/output stream class methods accept byte arrays. 
       In comparison to input/output streams, the Reader/Writer classes are more efficient, handle all Unicode characters, and are useful for internalization. 
       3. Use Reader/Writer classes instead of binary data, such as pictures, unless you do so.
+1.What is the difference between int array[] and int[] array?
+Ans:
+	Both int array[] and int[] array are used to declare an array of integers in java. 
+	The only difference between them is on their syntax no functionality difference is present between them.
+	
+	int arr[] is a C-Style syntax to declare an Array.
+	int[] arr is a Java-Style syntax to declare an Array.
+	
+2.How to copy an array in Java?
+Ans:In Java there are multiple ways to copy an Array based on the requirements. 
+
+	clone() method in Java: This method in Java is used to create a shallow copy of the given array which means that the new array will share the same 
+	memory as the original array.
+	int[] Arr = { 1, 2, 3, 5, 0};
+	int[] tempArr = Arr.clone(); 
+
+
+	arraycopy() method: To create a deep copy of the array we can use this method which creates a new array with the same values as the original array.
+	int[] Arr = {1, 2, 7, 9, 8};
+	int[] tempArr = new int[Arr.length];
+	System.arraycopy(Arr, 0, tempArr, 0, Arr.length);
+
+
+	copyOf() method: This method is used to create a new array with a specific length and copies the contents of the original array to the new array.
+	int[] Arr = {1, 2, 4, 8};
+	int[] tempArr = Arrays.copyOf(Arr, Arr.length);
+
+
+	copyOfRange() method: This method is very similar to the copyOf() method in Java, but this method also allows us to specify the range of the elements
+	to copy from the original array.
+	int[] Arr = {1, 2, 4, 8};
+	int[] temArr = Arrays.copyOfRange(Arr, 0, Arr.length);
+	
+3.Is it possible to make an array volatile?
+Ans:
+	In Java, it is not possible to make a volatile. Volatile keywords in Java can only be applied to individual variables but not to arrays or 
+	collections. The value of the Variable is always read from and written to the main memory when it is defined as volatile rather than being 
+	cached in a thread’s local memory. This makes it easier to make sure that all threads that access the variable can see changes made to it.
+
+4.What are the main concepts of OOPs in Java?
+Ans:
+	The main concepts of OOPs in Java are mentioned below:
+
+	Inheritance
+	Polymorphism
+	Abstraction
+	Encapsulation 
+	
+5.How is the ‘new’ operator different from the ‘newInstance()’ operator in Java?
+Ans:
+	the new operator is used to create objects, but if we want to decide the type of object to be created at runtime, there is no way we can use the 
+	new operator. In this case, we have to use the newInstance() method.
+	
+6.What are Classes in Java? 
+Ans:
+	In Java, Classes are the collection of objects sharing similar characteristics and attributes. Classes represent the blueprint or template from 
+	which objects are created.  Classes are not real-world entities but help us to create objects which are real-world entities. 
+
+7.What is this keyword in Java?
+Ans:
+	‘this’ is a keyword used to reference a variable that refers to the current object.
+	
+8.What are Brief Access Specifiers and Types of Access Specifiers?
+Ans:
+	Access Specifiers in Java help to restrict the scope of a class, constructor, variable, method, or data member. There are four types of Access Specifiers in Java mentioned below:
+
+	Public
+	Private
+	Protected
+	Default
+
+9.What happens if you don’t provide a constructor in a class?
+Ans:
+	If you don’t provide a constructor in a class in Java, the compiler automatically generates a default constructor with no arguments and no 
+	operation which is a default constructor.
+	
+10.What do you understand by copy constructor in Java?
+Ans:
+	The copy constructor is the type of constructor in which we pass another object as a parameter because which properties of both objects seem the 
+	same, that is why it seems as if constructors create a copy of an object.
+	
+11.Where and how can you use a private constructor?
+Ans:
+	A private constructor is used if you don’t want any other class to instantiate the object to avoid subclassing.
+	
+12.What is a marker interface?
+Ans:
+	An Interface is recognized as an empty interface (no field or methods) it is called a marker interface. Examples of marker interfaces are 
+	Serializable, Cloneable, and Remote interfaces.
+	
+13.What are the differences between abstract class and interface?
+Ans:
+	
+	
+	
+	
+14.What are the different types of inheritance in Java?
+Ans:
+	Inheritance is the method by which the Child class can inherit the features of the Super or Parent class. In Java, Inheritance is of four types:
+
+	Single Inheritance: When a child or subclass extends only one superclass, it is known to be single inheritance. Single-parent class properties 
+		are passed down to the child class. 
+	Multilevel Inheritance: When a child or subclass extends any other subclass a hierarchy of inheritance is created which is known as multilevel 
+		inheritance. In other words, one subclass becomes the parent class of another.
+	Hierarchical Inheritance: When multiple subclasses derive from the same parent class is known as Hierarchical Inheritance. In other words, 
+		a class that has a single parent has many subclasses.
+	Multiple Inheritance: When a child class inherits from multiple parent classes is known as Multiple Inheritance. In Java, it only supports 
+		multiple inheritance of interfaces, not classes.
+		
+15.Can the constructor be inherited?
+Ans:
+	No, we can’t inherit a constructor.
+	
+16.Can we override the static method?
+Ans:
+	No, as static methods are part of the class rather than the object so we can’t override them.
+	
+17.Can we override the overloaded method?
+Ans:
+	Yes, since the overloaded method is a completely different method in the eyes of the compiler. Overriding isn’t the same thing at all. 
+	The decision as to which method to call is deferred to runtime.
+	
+18.Can we overload the main() method?
+Ans:
+	Yes in Java we can overload the main method to call the main method with the help of its predefined calling method. 
+	
+19.Can we override the private methods?
+Ans:
+	It is not possible to override the private methods in Java. Method overriding is where the method in the subclass is implemented instead of the 
+	method from the parent class. The private methods are accessible only within the class in which it is declared. Since this method is not visible 
+	to other classes and cannot be accessed, it cannot be overridden. 
+	
+20.Can you have virtual functions in Java?
+Ans:
+	Yes, Java supports virtual functions. Functions are by default virtual and can be made non-virtual using the final keyword.
+	
+	
+21.Why do we need a synchronized ArrayList when we have Vectors (which are synchronized) in Java?
+Ans:
+	ArrayList is in need even when we have Vectors because of certain reasons:
+
+	ArrayList is faster than Vectors.
+	ArrayList supports multithreading whereas Vectors only supports single-thread use.
+	ArrayList is safer to use, as Vectors supports single threads and individual operations are less safe and take longer to synchronize.
+	Vectors are considered outdated in Java because of their synchronized nature
