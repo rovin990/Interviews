@@ -1,0 +1,62 @@
+1.Tell me about OOP and describe it.
+2.What is the definition of polymorphysm?
+3.Internal working of hash map String pool in detail Comparator vs comparable How can we store one I'd with multiple orders (like one 2 many)
+4.Java 8 stream coding questions, mostly frequency questions. Questions on Microservices architecture, DB performance, Java 8 features, Springboot 
+	annotations, Spring core basics, few core java questions, Kafka
+5.How does spring framework function?
+6.Java Basics, Hibernate Framework, Use of lambda expression in Java
+7.What was the most challenging technical project I worked on and why
+8.What is functional interface in Java
+9.Java, Angular, Database and a few algorithm questions.
+10.how to create end point in spring boot polymorphism scenerio based questions
+11.Can we use the static variables inside static methods?
+12.Can we use the final keyword with the constructor?
+13.Difference between List and ArrayList?
+14.What are the different bean scopes in Spring?
+15.Difference between StringBuffer and StringBuilder?
+16.Difference between Post and Put in SpringREST.
+17.How to get the second highest salary from the table?
+18.Difference between Inner Join and Outer join.
+19.Code to sort an array without using any predefined class and methods.
+20.Explain MVC design pattern with diagram.
+21.Difference between Application Server and Web Server
+22.A login page is validating user id and password by getting details from the database. 
+	But as the database has billion of rows and it is getting a long time to fetch the data from the database hence throwing errors. 
+	What should be the short-term and long-term solutions for this issue?
+23.About binary search
+24.Core Java, OOPS, Exception handling, Finding a palindrome etc. Hod do you do unit testing, how do you do integration testing, 
+	have you worked on agile, do you know about devops etc
+25.how to reverse linked list
+26.difference between final, finally and finalize, how is exception handling is used in your project, what is throwable.
+27.multithread concepts,
+28.bean lifecycle, 
+29.how to make a class immutable,
+30.which is the starting point for a spring framework.
+31.how hashmap stores work internally.Hashmap internal implementation
+32.what is dependency injection.
+33.Write a code of cache mechanism in core java without any framework support.
+34.Reverse a string. Print a pyramid pattern from a string. Collections.
+35. what is inheritance..! 2. what is interface..!
+36.How to implement stack
+37.Write a method to remove even numbers from list without using any other collection.
+38.Thread vs Runnable
+39.How concurrent hashmap works?
+40.How to apply security on RESTful web services
+41.Why wait and notify should be called from Synchronized block?
+42.How to implement second level cache in Hibernate?
+43.If your application has multiple databases, how many changes you have to made in Hibernate?
+44.If SOAP is more secure than REST then why many banking application still uses REST?
+45.What is the difference between HashMap and HashTable?
+46.Types of IOC container
+47.Steps for JDBC connection
+48.How to sort objects based on one of it's variables
+49.Given multiple catch blocks, which catch block would be executed.
+50.Find 2nd and 5th highest salary from table
+51.How can you access private functions using reflection
+52.Write a program to check if a String is palindrome or not.
+53.Difference between == and equals method
+54.What is concurrent modification exception? How to prevent it.
+55.difference between abstraction and encapsulation ?'
+56.Is abstraction and abstract class is same ?
+57.difference between abstraction and interface'
+58.
