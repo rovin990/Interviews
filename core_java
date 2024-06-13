@@ -1,0 +1,7 @@
+What is the difference between the Reader/Writer class hierarchy and the InputStream/OutputStream class hierarchy?
+Ans : 
+      1. The key difference between them is that byte stream data is read and written by input/output stream classes.
+      Characters are handled by the Reader and Writer classes.
+      2. In contrast to Reader/Writer classes, which accept character arrays as parameters, input/output stream class methods accept byte arrays. 
+      In comparison to input/output streams, the Reader/Writer classes are more efficient, handle all Unicode characters, and are useful for internalization. 
+      3. Use Reader/Writer classes instead of binary data, such as pictures, unless you do so.
