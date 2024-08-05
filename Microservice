@@ -1,0 +1,407 @@
+==============================Microservice==========================
+Annotation
+1. RestFul webservice
+
+	How are our resquest handled?
+	1. DispatcherServlet- Front Controller Pattern
+		a. Mapping servlet- dispatecherservlet urls=["/"]
+		b. who is configuraing ?
+		  AutoConfiguration by DispatcherServletAutoConfiguration
+		  
+	2. How does the bean converted to JSON object ?
+		a. @ResponseBody + JacksonHttpMessageConverter is responsible for json converted
+		b. who is configuring ?
+			AutoConfiguration : JacksonHttpMessageConvertersConfiguration
+	
+	3. Who is configuring Error Mapping ?
+		AutoConfiguration : ErrorMvcAutoConfiguration
+		
+		
+	===============Path Parameter===================
+	ex.
+			1. /user/{id}/todos/{id} => /user/3/todos/15
+			2. /hello-world/path-variable/{name}
+			
+			inside {} is know as url path-variable
+			
+			we can cepture these variable using @PathVariable annotation in Springboot
+			
+			ex: 
+				1. 
+				@GetMapping("hello-world/path-variable/{name}")
+				public String helloworldPathVariable(@PathVariable String name){} => here input params name should be same as url have
+				
+				2. 
+				@GetMapping("hello-world/path-variable/{id}")
+				public HelloWorldBean helloWorldpathvariable(@PathVariable("id") String name){}
+				
+	
+	User
+		Get
+			/users => get all users
+		Post
+			/users=> create User
+		Get 
+			/users/1 => get user with id 1
+		Delete
+			/users/1 => delete user with id 1
+	
+	Post
+		Get
+			/users/{id}/posts => get all post for user
+		Post
+			/users/{id}/posts => save post for user
+		Get
+			/users/{id}/posts/{post_id} => retrieve post detail for specific post
+		
+				
+		
+		Talend API Tester - Free Edition chrome extension very helpful for rest testing
+		
+	
+	Post : returning resource location while saving 
+	
+			import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+	
+			@PostMapping("/users")
+			public ResponseEntity<Object> createUser(@RequestBody User user){
+				User user1 = this.userDaoService.createUser(user);
+				URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+						.path("/{id}")
+						.buildAndExpand(user1.getId())
+						.toUri();
+						//http://localhost:8080/users/5
+				return ResponseEntity.created(location).build();  // created() method will append status code 201
+
+
+			}
+			
+	==================Exception Handling========================
+	1. By default for all error 500 will return which is handled by ResponseEntityExceptionHandler 
+			method public final ResponseEntity<Object> handleException(Exception ex, WebRequest request) throws Exception {}
+			
+			below will output:
+			
+			{
+			"timestamp": "2024-07-18T09:43:39.966+00:00",
+			"status": 404,
+			"error": "Not Found",
+			"trace": "java.lang.RuntimeException: com.examsphere.rest.webservice.restful_web_service.Exception.UserNotFoundException: NotFound with Id :10",
+			"message": "com.examsphere.rest.webservice.restful_web_service.Exception.UserNotFoundException: NotFound with Id :10",
+			"path": "/users/10"
+		}
+		
+	2. if we want response in below formate than what ?
+	
+			{
+				"timestamp": "2024-07-18T15:16:19.3629303",
+				"message": "com.examsphere.rest.webservice.restful_web_service.Exception.UserNotFoundException: NotFound with Id :10",
+				"description": "uri=/users/10"
+			}
+
+		2.1 create class with all three member variable.
+		2.2 create class which will extends ResponseEntityExceptionHandler and you need to declare method for different type of exception like below
+		2.3 
+				eg. 
+				
+				@ControllerAdvice
+				public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
+
+					@ExceptionHandler(value = Exception.class)
+					public final ResponseEntity<ErrorDetail> handleAllException(Exception ex, WebRequest request) throws Exception {
+						ErrorDetail error=
+								new ErrorDetail(
+										LocalDateTime.now(),ex.getMessage(),
+										request.getDescription(false));
+
+						return new ResponseEntity<ErrorDetail>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+					}
+				}
+				
+	3. Validation 
+		add jars for spring validation
+		
+		
+		
+
+2.Documentation for RestAPI : Swagger-UI & Open-AI Specification
+
+<dependency>
+	<groupId>org.springdoc</groupId>
+	<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+	<version>2.3.0</version>
+</dependency>
+
+
+http://localhost:8080/swagger-ui/index.html
+
+
+3. Content Negotiation : returning different type response as per need either xml or json
+
+	1. accept header in request "application/xml or application/json"
+		Add below dependency 
+		
+			<dependency>
+				<groupId>com.fasterxml.jackson.dataformat</groupId>
+				<artifactId>jackson-dataformat-xml</artifactId>
+			</dependency>
+	
+	2. Internationalization-i18n
+		1. add header : Accept-language 
+		
+		2. To enable i18n from backend spring prefer all message must be present in messages.properties file in resource.
+		3. Use MessageSource class for reading message from messages.properties file
+		4. 
+			@GetMapping("hello-world-internationlization")
+			public String helloWorldinternationlization(){
+				Locale locale = LocaleContextHolder.getLocale();
+				return messageSource.getMessage("good.morning.message",null,locale);
+			}
+4. Versoning RestAPI : 
+	Versioning can be done more than one way;
+		1. URL based
+		2. Params based
+		3. Header based
+		
+			@RestController
+			public class VersioningController {
+
+				@GetMapping("/v1/person")
+				public Person1 getFirstPersion(){
+					return new Person1("Rovin Singh");
+				}
+
+				@GetMapping("/v2/person")
+				public Person2 getSecondPersion(){
+					return new Person2(new Name("Rovin", "Singh"));
+				}
+
+				@GetMapping(value = "/person",params = "version=1")
+				public Person1 getFirstPersionParameter(){
+					return new Person1("Rovin Singh");
+				}
+
+				@GetMapping(value = "/person",params = "version=2")
+				public Person2 getSecondPersionParameter(){
+					return new Person2(new Name("Rovin", "Singh"));
+				}
+
+				@GetMapping(value = "/person/header",headers ="X-API-VERSION=1")
+				public Person1 getFirstPersionHeader(){
+					return new Person1("Rovin Singh");
+				}
+
+				@GetMapping(value = "/person/header",headers ="X-API-VERSION=2")
+				public Person2 getSecondPersionHeader(){
+					return new Person2(new Name("Rovin", "Singh"));
+				}
+			}
+			
+5. Heteoas
+
+
+6. Filtering in api response
+
+	@JasonIgnore : if you want remove some feild from response add this annotation at member variable
+	@JasonIgnoreProperties : It is class level annotation
+	
+7. Monitoring using actuator and HAL Explorer
+
+
+8.
+
+Enabling H2-Console
+In the next step, we use H2 as the database. Please add the following setting to enable H2-Console:
+
+
+
+/src/main/resources/application.properties
+
+spring.h2.console.enabled=true
+
+
+
+
+10. Microservice challenges
+	
+	1. Bounded context
+	2. Dynamic scale up/down // Dynamically dtribute load among active instances
+	3. Configuration management
+	4. Visibility : For logging we shd hv centralise logging
+	5. Fault tolerance : 
+	
+	
+	Config server run at : config from server at : http://localhost:8888 by default
+	
+	step to use git as config server(local/remote)
+		1. Create new folder say git-local-server-repo
+		2. Move to git-local-server-repo 
+		3. initialize git repo here git init
+		4. create properties file for service say limits-service.properties
+		5. Keep all properties in file and save
+		6. add file to git repo git add *
+		7. commit file to repo git commit -m "some message"
+	
+	Now go to config server service
+		1. add spring.cloud.config.server.git.uri=<keep local or remote git path>
+			Ex. spring.cloud.config.server.git.uri=file:///C:/Users/ROVINSINGH/Documents/SpringMicroservice/git-local-config-repo
+		2. Enable config server by adding @EnableConfigServer annotation on SpringbootApplication main class
+			Ex. 
+				@EnableConfigServer
+				@SpringBootApplication
+				public class SpringCloudConfigServerApplication {}
+				
+	
+	Connecting microservice -> config server -> git config
+	
+		1. To tell microservice add in properties file
+			
+		spring.config.import=optional:configserver:<config server path>  
+		spring.config.import=optional:configserver:http://localhost:8888
+		
+			Here optional kept so we are telling springboot config server is optional if present use it else use local file configuration
+			
+	Working with different enviroment
+		1. add active profile configuration microserve
+			spring.profiles.active=dev
+			
+			// add this if above is not working properly
+				spring.cloud.config.profile=dev
+			
+		2. create properties file for dev env in repo
+			limits-service-dev.properties
+			
+		3. now check configuration will pic from dev file
+		
+	
+	communication between microservices
+	
+		1. using RestTemplate
+		2. Using OpenFeign
+		
+		using RestTemplate:
+			1. create resttemplate bean 
+			2. use it with necessary paramenter
+			
+		using OpenFeign
+			1. To use feign client add jars to classpath or add dependency in pom.xml
+				<dependency>
+					<groupId>org.springframework.cloud</groupId>
+					<artifactId>spring-cloud-starter-openfeign</artifactId>
+				</dependency>
+			2. To enable openfeign add @EnableFeignClients to SpringbootApplication class
+			3. Create Feign client proxy Interface
+				@FeignClient(name = "currency-exchange-service",url = "localhost:8000")
+				public interface CurrencyConversionProxy {
+
+					@GetMapping("/currency-exchange/from/{from}/to/{to}")
+					public CurrencyConversion getCurrencyExchangeValue(@PathVariable String from , @PathVariable String to);
+				}
+			4.  url : whom to connect 
+				name: name of whom to connect service
+			5.  @FeignClient
+				Feign is a declarative web service client. It makes writing web service clients easier. 
+				To use Feign create an interface and annotate it.
+			6. use proxy interface wherever you want to call service
+			
+		Naming server or registory server
+		
+			Registory server mentain list of all live service which are running to create naming ser using netflix jars
+
+			1. Add below dependency
+				<dependency>
+					<groupId>org.springframework.cloud</groupId>
+					<artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+				</dependency>
+				
+			2. Add @EnableEurekaSever at SpringbootApplication class
+			3. add  below properties in application.properties file
+				eureka.client.register-with-eureka=false // it will tell springboot do not register self with naming server
+				eureka.clent.fetch-registry=false // it will not part of fetch-registry
+				
+		eureka.instance.prefer-ip-address=true
+		OR
+
+		eureka.instance.hostname=localhost
+		
+		Register microserve with eureka server
+		
+		
+		Load balancing : Now Currently client side Loadbalancing comes default with netflix-eureka-client
+		
+		1. Just ommit url option from Feignclient proxy interface 
+			instead of @FeignClient(name = "currency-exchange-service",url = "localhost:8000")
+			use @FeignClient(name = "currency-exchange-service")
+		2. it will enable client side load balaning
+		
+		
+		Spring cloud gateway:
+		
+		There are two artifactId for this 
+			1. spring.cloud.gateway.mvc
+			2. spring-cloud-starter-gateway this artifactId load spring-cloud-gateway transient dependency
+			
+			We are using spring-cloud-starter-gateway 
+			it will do following steps:
+				for discovery service name in naming server add below property name
+				spring.cloud.gateway.discovery.locator.enabled=true
+				http://localhost:8765/CURRENCY-EXCHANGE-SERVICE/currency-exchange/from/USD/to/INR
+			1. As CURRENCY-EXCHANGE-SERVICE is service name which register with naming server
+			2. gateway first ask naming server for CURRENCY-EXCHANGE-SERVICE hostname for ex: http://localhost:80002
+			3. than it will fire for /currency-exchange/from/USD/to/INR 
+			
+			As above url is not well looking generally url contain in lowercase.
+			TO make work with lowercase add below dependency to application.properties file
+			spring.cloud.gateway.discovery.locator.lower-case-service-id=true
+			
+			
+	Resilience4j is a fault tolerance library for Java:
+		Resilience4j is a lightweight fault tolerance library inspired by Netflix Hystrix, but designed for functional programming.
+		
+		Resilience4j provides following solution:
+			1. can we return fallbackresponse if service is down? yes
+			2. can we implement circuit breaker pattern to reduce load?
+			3. can we retry requests in case of remporary failures ?
+			4. can we implement rate limiting
+			
+			1. rateLimiter : to handle number of calls with in specific time
+			2. curcuitBreaker : to return default reponse if dependent service returning no reponse after chekcing some condition
+			3. bulkHead : to handle concurrent call 
+			
+			@Retry(name = "sample-api" ,fallbackMethod = "defaultFallbackResponse")
+			@CircuitBreaker(name="circuitBreaker")
+			@RateLimiter(name="ratelimiter")
+			@Bulkhead(name = "bulkHead")
+			
+			
+===============================docker========================
+Docker is just like git hub 
+	Docker                vs                							GitHub
+	
+1	registry															github
+2.  inside each registry we have repository								In GitHub also we have repository
+3.	In docker versioning controls by tags								In GitHub versioning controls by branch -> inside branch by tags
+
+
+	1. repository+tag is equivalent to docker image
+	2. images are static byte 
+	3. In images all required software , Runtime enviroment , dependency etc mentions
+	4. When we execute docker run -p 5000:5000 in28min/todo-rest-api:1.0.0.RELEASE
+		explaination :
+			docker run : it will start launching docker image 
+			-p : By default docker launch applicaiton inside container network port 
+				if you want access from browser than use public option
+				-p <hostport>:<dockerPort>
+			in28min: docker registry
+			todo-rest-api: docker repository
+			1.0.0.RELEASE: tag name
+			
+			
+====================================Distributed Tracing using openzipkin==========================
+
+
+				
+		
+		
+		
+
