@@ -1,0 +1,313 @@
+==========================JPA============
+1. query with jpql
+2. query with native sql
+
+	entity or class owning realtionship mappedBy="variable name in owning eintity"
+
+	OneToOne => mapping by default eager
+	
+	
+	session & sessionfactory  // use in hibernate to interact database
+	EntityManager & persistent contenxt // use in JPA to interact database
+	
+why @DirtiesContext used in JUnit Test?
+
+do we need Transactional for read-only?
+
+	OneToMany => By default fetch type is lazy
+		if you want load any collection try to load eager
+		
+		org.hibernate.LazyInitializationException: failed to lazily initialize a collection of role
+			solution : add @Transactional at top of method 
+	
+	ManyToOne => By default fetch type is eager
+	
+	
+	ManyToMany => alway establish by join table means will create new table
+	
+	As both side have many realtionship so it doesn't matter which class is owning relationship
+	
+	Note : If you have bidirectional relationship and you are calling toString ot hasCode. it may cause for stackOverflow error
+	so make sure you are not using those variable.
+	
+	
+Inheritance and Mapping:
+
+	1. Single table inherience option use @Inheritance(strategy=InheritanceType.SingleTable)  at enitiy class label
+		it will create only single table all attribute present in parent as well as child class.
+		data should be nullable
+		
+	2. Table per concrete class  create table for all concrete class
+	
+		ex. 
+			@Inheritance(strategy =InheritanceType.TABLE_PER_CLASS)
+			@Entity
+			public abstract class Employee {
+				//private  Logger logger = LoggerFactory.getLogger(this.getClass());
+
+				@Id
+				@GeneratedValue
+				private Long id;
+				private  String name;
+			}
+			
+			public class FullTimeEmployee extends Employee{ private String salary;}
+			
+			public class PartTimeEmployee extends Employee{ private String hourlyWages;}
+			
+			
+			=============Note==========
+			Here two table will create one for each concrete class with all concrete class variable and all parent class variable as columns
+				ex. 
+				part_time_employee{id,name,hourly_wages}
+				full_time_employee{id,name,hourly_wages}
+				
+				In both table id, name comes from employee.
+				
+	3. JOINED TABLE : seperate table will create for all class and only those columns will be part of table those are in class not from prarent class.
+			ex.
+				@Inheritance(strategy = InheritanceType.JOINED)
+				@Entity
+				public abstract class Employee {
+					//private  Logger logger = LoggerFactory.getLogger(this.getClass());
+
+					@Id
+					@GeneratedValue
+					private Long id;
+					private  String name;
+				}
+				
+				public class FullTimeEmployee extends Employee{ private String salary;}
+			
+				public class PartTimeEmployee extends Employee{ private String hourlyWages;}
+				
+				=============three table =================
+				foreign key constraint will added in child class.
+				
+				
+				Hibernate: 
+					create table employee (
+						id bigint not null,
+						name varchar(255),
+						primary key (id)
+					) engine=InnoDB
+				Hibernate: 
+					create table employee_seq (
+						next_val bigint
+					) engine=InnoDB
+				Hibernate: 
+					insert into employee_seq values ( 1 )
+				Hibernate: 
+					create table full_time_employee (
+						salary varchar(255),
+						id bigint not null,
+						primary key (id)
+					) engine=InnoDB
+				Hibernate: 
+					create table part_time_employee (
+						hourly_wages varchar(255),
+						id bigint not null,
+						primary key (id)
+					) engine=InnoDB
+				Hibernate: 
+					alter table full_time_employee 
+					   add constraint FKhkidbx7pliabdmr4wycrog3mg 
+					   foreign key (id) 
+					   references employee (id)
+				Hibernate: 
+					alter table part_time_employee 
+					   add constraint FKfan9lj9g0g880a30ca7bitghi 
+					   foreign key (id) 
+					   references employee (id)
+					   
+		============================For retrieving join will perform ================
+		
+jpql : 
+	operator -> like ex. like '%xyz%'
+				between 100 and 1000
+				is null
+				upper , lower,trim,length specially for String
+				
+				1. em.createQuery("select s from Student s where s.passport.number like '%SH%'", Student.class);
+				2. em.createQuery("select c from Course c order by size(c.students)", Course.class);
+				3. em.createQuery("select c from Course c where size(c.students) >=2", Course.class);
+				4. em.createQuery("select c from Course c where c.students is empty", Course.class);
+				
+	JOIN in JPQL:
+		JOIN
+		LEFT JOIN
+		CROSS JOIN
+		
+Criteria Query :
+	Generally below step follow for creating criteria query
+	
+	@Test
+    public void all_course_where_name_like_Learn(){
+        // select c from Course c where c.name like '%Learn%'
+        //1. use  criteria builder to create a criteria query returning the expected result object
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Course> cq = cb.createQuery(Course.class);
+        //2. Define roots for tables which are involved in query    
+        Root<Course> courseRoot = cq.from(Course.class);
+        //3. Define predicates etc  using criteria builder
+        Predicate likeLearn = cb.like(courseRoot.get("name"), "%Learn%");
+        //4. Add predicates etc to the Criteria query
+        cq.where(likeLearn);
+        //5. Build typed query using entity manager and criteria query
+        TypedQuery<Course> query = em.createQuery(cq.select(courseRoot));
+        List<Course> resultList = query.getResultList();
+
+        logger.info("Course result having like Learn-> {}",resultList);
+    }
+	
+	
+	Criteria Query Join:
+	
+		1. JOIN
+		2. Outer JOIN
+		
+		@Test
+		public void criteria_Left_join(){
+
+			CriteriaBuilder cb = em.getCriteriaBuilder();
+			CriteriaQuery<Course> cq = cb.createQuery(Course.class);
+
+			Root<Course> courseRoot = cq.from(Course.class);
+
+			courseRoot.join("students", JoinType.LEFT);
+
+			TypedQuery<Course> query = em.createQuery(cq.select(courseRoot));
+			List<Course> resultList = query.getResultList();
+
+			logger.info("Course left Join students -> {}",resultList);
+		}
+	
+
+Transaction Managment:
+	
+	We have two @Transactional annotation 
+		1. one from spring framework
+		2. other from javax.persistent
+		
+	Suppose we have requirement]
+		crud to db1
+		crud to db2
+		and also send update to MQ external interface
+		
+		in single transaction than use of JPA not recommed 
+		
+		
+		
+	JPA can handle all Crud operation in single Database connection at great.
+	But Spring framework Transactional can manage multiple dbs as well as other trasactional
+	
+	
+	We can specify isolation label in springframework
+		1. Isolation.READ_UNCOMMITTED solve No . DirtyRead , non-repeatableRead,Phanthon Read
+		2. Isolation.READ_COMMITTED		Solve Only DirtyRead 
+		3. Isolation.REPEATABLE_READ
+		4. isolation.SERIALIZABLE Solve All Problem
+		
+	
+	@Test
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public void criteria_Left_join(){
+
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Course> cq = cb.createQuery(Course.class);
+
+        Root<Course> courseRoot = cq.from(Course.class);
+
+        courseRoot.join("students", JoinType.LEFT);
+
+        TypedQuery<Course> query = em.createQuery(cq.select(courseRoot));
+        List<Course> resultList = query.getResultList();
+
+        logger.info("Course left Join students -> {}",resultList);
+    }
+	
+	
+Sprin Data JPA: 
+	
+	1. For creating repository in Spring data JPA you need to create an interface which will extends JpaRepository<T,ID> interface.
+	
+		ex.  public interface CourseRepository extends JpaRepository<Course,Long>{}
+		
+	2. Sorting for fetched result.
+	
+		Use Sort class from spring data
+		Sort sort = Sort.by(Sort.Direction.DESC,"name");
+        List<Course> courseList = repository.findAll(sort);
+	
+	
+	3. Expose repository end-point for prototype
+		use spring Data rest in pom.xml
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-rest</artifactId>
+		</dependency>
+		
+		just start springbootapplication file
+		
+		fire http://localhost:8080/courses/10001
+		
+				{
+				"name": "Learn Aws",
+				"reviews": [
+					{
+						"rating": "1",
+						"description": "",
+						"_links": {
+							"course": {
+								"href": "http://localhost:8080/courses/10001"
+							}
+						}
+					},
+					{
+						"rating": "4",
+						"description": "Great course",
+						"_links": {
+							"course": {
+								"href": "http://localhost:8080/courses/10001"
+							}
+						}
+					}
+				],
+				"_links": {
+					"self": {
+						"href": "http://localhost:8080/courses/10001"
+					},
+					"course": {
+						"href": "http://localhost:8080/courses/10001"
+					}
+				}
+			}
+			
+
+Caching in Spring :
+
+
+
+
+1. soft delete
+	
+	@S
+	
+	
+
+Summary :
+	1. Tight & loose coupling
+	2. IoC container
+	3. Application contenxt
+	4. Component scan
+	5. Dependency Injection
+	6. Spring bean
+	7. Auto wiring
+		
+		
+
+		
+		
+	
+	
+	
